@@ -643,17 +643,9 @@ This hybrid cryptosystem architecture is used in:
 - **Cloud Storage** - End-to-end encryption
 - **VPN Systems** - Secure tunneling
 
-## 📖 Further Reading
-
-- [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/) - AES CBC Mode
-- [RFC 3394](https://tools.ietf.org/html/rfc3394) - AES Key Wrap
-- [RFC 2104](https://tools.ietf.org/html/rfc2104) - HMAC
-- [RFC 8017](https://tools.ietf.org/html/rfc8017) - PKCS #1 RSA
-- [RFC 2311](https://tools.ietf.org/html/rfc2311) - S/MIME
-
 ## License
 
-This is educational software. Use responsibly and according to local laws.
+This software is intended for learning, training, research, or educational purposes. Users must use it responsibly and comply with applicable laws, regulations, and ethical guidelines.
 
 ## Support
 
