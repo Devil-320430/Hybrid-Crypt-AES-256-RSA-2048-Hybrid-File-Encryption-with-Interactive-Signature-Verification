@@ -1,0 +1,6 @@
+cryptography==41.0.0
+flask==3.0.0
+
+# Optional GUI dependency: tkinter is provided by the OS (not a pip package).
+# On Debian/Ubuntu install with:
+#   sudo apt-get install python3-tk

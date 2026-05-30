@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Cryptosystem</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Hybrid Cryptosystem</h1>
+            <p>AES-256 + RSA-2048 + SHA-256 Digital Signatures</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('keygen', event)">🔑 Generate Keys</button>
+            <button class="tab-btn" onclick="showTab('encrypt', event)">🔒 Encrypt</button>
+            <button class="tab-btn" onclick="showTab('decrypt', event)">🔓 Decrypt</button>
+            <button class="tab-btn" onclick="showTab('sign', event)">✍️ Sign</button>
+            <button class="tab-btn" onclick="showTab('verify', event)">✔️ Verify</button>
+        </div>
+
+        <div id="keygen" class="tab-content active">
+            <div class="card">
+                <h2>🔑 Generate RSA Key Pair</h2>
+                <p class="info-box">Generate a new RSA-2048 key pair for encryption/decryption and signing.</p>
+                
+                <button onclick="generateKeys()">Generate Keys (RSA-2048)</button>
+                
+                <div class="loader" id="keygen-loader">
+                    <div class="spinner"></div>
+                    <p>Generating keys...</p>
+                </div>
+                
+                <div class="result" id="keygen-result">
+                    <strong>Private Key:</strong>
+                    <textarea id="private-key-output" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('private-key-output')">Copy Private Key</button>
+                    <button class="download-btn" onclick="downloadKey('private-key-output', 'private.pem')">Download Private Key</button>
+                    
+                    <strong style="display: block; margin-top: 15px;">Public Key:</strong>
+                    <textarea id="public-key-output" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('public-key-output')">Copy Public Key</button>
+                    <button class="download-btn" onclick="downloadKey('public-key-output', 'public.pem')">Download Public Key</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="encrypt" class="tab-content">
+            <div class="card">
+                <h2>🔒 Encrypt File</h2>
+                <p class="info-box">Encrypt a file using recipient's public key (optionally sign with your private key).</p>
+                
+                <label class="label">Select File to Encrypt:</label>
+                <input type="file" id="encrypt-file">
+                
+                <label class="label">Recipient's Public Key:</label>
+                <textarea id="encrypt-recipient-pub" placeholder="Paste recipient's public key"></textarea>
+                
+                <label class="checkbox-label">
+                    <input type="checkbox" id="encrypt-sign">
+                    Sign the encrypted message (requires your private key)
+                </label>
+                
+                <div id="encrypt-sender-section" style="display: none;">
+                    <label class="label">Your Private Key:</label>
+                    <textarea id="encrypt-sender-priv" placeholder="Paste your private key"></textarea>
+                </div>
+                
+                <button onclick="encryptFile()">Encrypt</button>
+                
+                <div class="loader" id="encrypt-loader">
+                    <div class="spinner"></div>
+                    <p>Encrypting...</p>
+                </div>
+                
+                <div class="result" id="encrypt-result">
+                    <strong>Encrypted File (JSON):</strong>
+                    <textarea id="encrypt-output" readonly></textarea>
+                    <button class="download-btn" onclick="downloadKey('encrypt-output', 'file.encrypted')">Download Encrypted File</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="decrypt" class="tab-content">
+            <div class="card">
+                <h2>🔓 Decrypt File</h2>
+                <p class="info-box">Decrypt an encrypted file using your private key (optionally verify sender's signature).</p>
+                
+                <label class="label">Select Encrypted File:</label>
+                <input type="file" id="decrypt-file">
+                
+                <label class="label">Your Private Key:</label>
+                <textarea id="decrypt-recipient-priv" placeholder="Paste your private key"></textarea>
+                
+                <label class="checkbox-label">
+                    <input type="checkbox" id="decrypt-verify">
+                    Verify sender's signature (requires sender's public key)
+                </label>
+                
+                <div id="decrypt-sender-section" style="display: none;">
+                    <label class="label">Sender's Public Key:</label>
+                    <textarea id="decrypt-sender-pub" placeholder="Paste sender's public key"></textarea>
+                </div>
+                
+                <button onclick="decryptFile()">Decrypt</button>
+                
+                <div class="loader" id="decrypt-loader">
+                    <div class="spinner"></div>
+                    <p>Decrypting...</p>
+                </div>
+                
+                <div class="result" id="decrypt-result">
+                    <strong>Decrypted File:</strong>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button id="decrypt-download-btn" class="download-btn" onclick="downloadDecryptedFile()">📥 Download File</button>
+                        <button class="copy-btn" onclick="copyToClipboard('decrypt-output')">📋 Copy Content</button>
+                    </div>
+                    <textarea id="decrypt-output" readonly style="margin-top: 10px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="sign" class="tab-content">
+            <div class="card">
+                <h2>✍️ Sign File</h2>
+                <p class="info-box">Sign a file with your private key to prove authenticity.</p>
+                
+                <label class="label">Select File to Sign:</label>
+                <input type="file" id="sign-file">
+                
+                <label class="label">Your Private Key:</label>
+                <textarea id="sign-private-key" placeholder="Paste your private key"></textarea>
+                
+                <button onclick="signFile()">Sign File</button>
+                
+                <div class="loader" id="sign-loader">
+                    <div class="spinner"></div>
+                    <p>Signing...</p>
+                </div>
+                
+                <div class="result" id="sign-result">
+                    <strong>Digital Signature (Hex):</strong>
+                    <textarea id="sign-output" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('sign-output')">Copy Signature</button>
+                    <button class="download-btn" onclick="downloadKey('sign-output', 'file.sig')">Download Signature</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="verify" class="tab-content">
+            <div class="card">
+                <h2>✔️ Verify Signature</h2>
+                <p class="info-box">Verify a file's digital signature using sender's public key.</p>
+                
+                <label class="label">Select File to Verify:</label>
+                <input type="file" id="verify-file">
+                
+                <label class="label">Signature (Hex format):</label>
+                <textarea id="verify-signature" placeholder="Paste the signature in hex format"></textarea>
+                
+                <label class="label">Sender's Public Key:</label>
+                <textarea id="verify-public-key" placeholder="Paste sender's public key"></textarea>
+                
+                <button onclick="verifyFile()">Verify Signature</button>
+                
+                <div class="loader" id="verify-loader">
+                    <div class="spinner"></div>
+                    <p>Verifying...</p>
+                </div>
+                
+                <div class="result" id="verify-result">
+                    <strong id="verify-message"></strong>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🔐 Secure File Encryption Tool | AES-256 + RSA-2048 | SHA-256 Hashing | RSA-PSS Signatures</p>
+            <p>All cryptographic operations happen locally in your browser.</p>
+        </footer>
+    </div>
+    <!-- <script src="{{ url_for('static', filename='script.js') }}"></script> -->
+    <script src="../static/script.js"></script>
+</body>
+</html>
